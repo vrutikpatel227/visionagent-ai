@@ -10,14 +10,22 @@ load_dotenv()
 
 app = Flask(
     __name__,
-    template_folder=os.path.join(os.path.dirname(__file__), '..', 'templates'),
-    static_folder=os.path.join(os.path.dirname(__file__), '..', 'static')
+    template_folder="../templates",
+    static_folder="../static"
 )
 
 # ========= ENV =========
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 CF_ACCOUNT_ID = os.getenv("CF_ACCOUNT_ID")
 CF_API_TOKEN = os.getenv("CF_API_TOKEN")
+
+# Validate envs early
+if not GROQ_API_KEY:
+    print("❌ Missing GROQ_API_KEY")
+if not CF_ACCOUNT_ID:
+    print("❌ Missing CF_ACCOUNT_ID")
+if not CF_API_TOKEN:
+    print("❌ Missing CF_API_TOKEN")
 
 client = Groq(api_key=GROQ_API_KEY)
 
@@ -41,15 +49,19 @@ def parse_json_safe(raw):
         return json.loads(raw)
     except json.JSONDecodeError:
         pass
+
     cleaned = raw.strip()
+
     if cleaned.startswith("```"):
         lines = cleaned.split("\n")
         lines = [l for l in lines if not l.strip().startswith("```")]
         cleaned = "\n".join(lines).strip()
+
     try:
         return json.loads(cleaned)
     except json.JSONDecodeError:
         pass
+
     start = raw.find("{")
     end = raw.rfind("}") + 1
     if start != -1 and end > start:
@@ -57,6 +69,7 @@ def parse_json_safe(raw):
             return json.loads(raw[start:end])
         except json.JSONDecodeError:
             pass
+
     raise ValueError(f"Could not parse JSON: {raw[:300]}")
 
 
@@ -65,16 +78,24 @@ def home():
     return render_template("index.html")
 
 
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok"})
+
+
 @app.route("/generate", methods=["POST"])
 def generate():
     try:
-        data = request.get_json()
+        data = request.get_json(force=True)
         idea = data.get("idea", "").strip()
         style = data.get("style", "Cinematic").strip()
         aspect = data.get("aspect", "1:1").strip()
 
         if not idea:
             return jsonify({"error": "Please enter an idea."}), 400
+
+        if not GROQ_API_KEY:
+            return jsonify({"error": "Missing GROQ_API_KEY in environment variables."}), 500
 
         system_prompt = """You are VisionAgent AI, an elite AI Creative Director and Prompt Engineer.
 
@@ -128,12 +149,15 @@ Create a premium creative direction output."""
 @app.route("/generate-image", methods=["POST"])
 def generate_image():
     try:
-        data = request.get_json()
+        data = request.get_json(force=True)
         prompt = data.get("prompt", "").strip()
         aspect = data.get("aspect", "1:1").strip()
 
         if not prompt:
             return jsonify({"error": "Missing prompt"}), 400
+
+        if not CF_ACCOUNT_ID or not CF_API_TOKEN:
+            return jsonify({"error": "Missing Cloudflare environment variables."}), 500
 
         aspect_hint = {
             "1:1": "square composition",
@@ -168,7 +192,9 @@ def generate_image():
         return jsonify({"error": "Image generation timed out. Please try again."}), 504
     except Exception as e:
         return jsonify({"error": f"Image generation error: {str(e)}"}), 500
-    
+
+
 if __name__ == "__main__":
     app.run(debug=True)
-    app = app
+
+app = app
