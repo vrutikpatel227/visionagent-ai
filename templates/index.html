@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VisionAgent AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@300;500;700&family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <style>
+        :root {
+            --obsidian-bg: #05060d;
+            --accent-purple: #7C5CFF;
+            --surface-deep: #0c0e1a;
+            --surface-elevated: #161926;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--obsidian-bg);
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(124, 92, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(124, 92, 255, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(12, 14, 26, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(124, 92, 255, 0.1);
+        }
+        .btn-glow {
+            box-shadow: 0 0 20px rgba(124, 92, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 40px rgba(124, 92, 255, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-glow:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 0 20px rgba(124, 92, 255, 0.1);
+        }
+        .text-gradient {
+            background: linear-gradient(to bottom right, #FFFFFF, #7C5CFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .chip {
+            background: transparent;
+            color: #9ca3af;
+            border: 1px solid #374151;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .chip:hover { border-color: #7C5CFF; color: white; }
+        .chip.active {
+            background: #7C5CFF !important;
+            color: white !important;
+            border-color: #7C5CFF !important;
+        }
+        .ratio-chip {
+            background: transparent;
+            color: #9ca3af;
+            border: 1px solid #374151;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .ratio-chip:hover { border-color: #7C5CFF; color: white; }
+        .ratio-chip.active {
+            background: #7C5CFF !important;
+            color: white !important;
+            border-color: #7C5CFF !important;
+        }
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .color-swatch {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .color-swatch:hover { transform: scale(1.15); }
+        .image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(5,6,13,0.8) 0%, transparent 50%);
+            display: flex;
+            align-items: flex-end;
+            padding: 16px;
+        }
+        .action-btn {
+            background: transparent;
+            color: #9ca3af;
+            border: 1px solid #374151;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .action-btn:hover { border-color: #7C5CFF; color: white; }
+        .action-btn-primary {
+            background: #7C5CFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .action-btn-primary:hover { background: #6a4de8; }
+        .action-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        textarea:focus { outline: none; box-shadow: 0 0 0 2px rgba(124,92,255,0.5); }
+    </style>
+</head>
+<body class="min-h-screen">
+    <main class="max-w-6xl mx-auto p-6 md:p-10">
+
+        <!-- Hero -->
+        <header class="mb-14 text-center">
+            <h4 class="uppercase tracking-[0.4em] text-xs mb-4 font-bold text-purple-400">The Creative Engine</h4>
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 text-gradient" style="font-family: 'Epilogue', sans-serif;">
+                VisionAgent AI
+            </h1>
+            <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+                Translate your artistic ideas into AI plans, polished prompts, and generated visuals.
+            </p>
+        </header>
+
+        <!-- Input Section -->
+        <section class="mb-10">
+            <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Start With An Idea</h2>
+                    <span class="text-xs uppercase tracking-[0.3em] text-gray-400">v2.4</span>
+                </div>
+
+                <div class="relative mb-8">
+                    <textarea
+                        id="ideaInput"
+                        class="w-full bg-[#161926] border border-gray-700 rounded-xl p-6 text-white placeholder-gray-500 min-h-[180px] text-lg resize-none"
+                        placeholder="Describe a visual concept in high detail..."
+                        maxlength="2500"
+                    ></textarea>
+                    <div id="wordCounter" class="absolute bottom-4 right-4 text-xs text-gray-500 uppercase tracking-widest">CHARS: 0 / 2500</div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h5 class="uppercase tracking-[0.2em] text-purple-300 text-xs mb-4 font-bold">Visual Style</h5>
+                        <div class="flex flex-wrap gap-3">
+                            <button class="chip active px-4 py-2 rounded-full text-sm" data-style="Realistic">Realistic</button>
+                            <button class="chip px-4 py-2 rounded-full text-sm" data-style="Cinematic">Cinematic</button>
+                            <button class="chip px-4 py-2 rounded-full text-sm" data-style="Cyberpunk">Cyberpunk</button>
+                            <button class="chip px-4 py-2 rounded-full text-sm" data-style="Anime">Anime</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="uppercase tracking-[0.2em] text-purple-300 text-xs mb-4 font-bold">Aspect Ratio</h5>
+                        <div class="flex flex-wrap gap-3">
+                            <button class="ratio-chip active px-4 py-2 rounded-full text-sm" data-aspect="16:9">16:9</button>
+                            <button class="ratio-chip px-4 py-2 rounded-full text-sm" data-aspect="1:1">1:1</button>
+                            <button class="ratio-chip px-4 py-2 rounded-full text-sm" data-aspect="9:16">9:16</button>
+                            <button class="ratio-chip px-4 py-2 rounded-full text-sm" data-aspect="4:5">4:5</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-4">
+                    <button id="generateBtn" class="px-10 py-4 bg-purple-600 rounded-xl font-bold btn-glow flex items-center gap-3">
+                        <span id="btnText">Generate Vision</span>
+                        <span id="btnLoader" class="hidden"><span class="spinner"></span></span>
+                    </button>
+                    <button id="refineBtn" class="px-8 py-4 rounded-xl font-bold action-btn" style="display:none;">
+                        Refine Again
+                    </button>
+                </div>
+
+                <p id="errorMessage" class="text-red-400 mt-4 hidden"></p>
+            </div>
+        </section>
+
+        <!-- Output Cards -->
+        <section class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-10">
+
+            <!-- AI Plan -->
+            <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                <h3 class="text-xl font-bold mb-4">AI Plan</h3>
+                <div id="planText" class="text-gray-300 leading-relaxed min-h-[180px]">
+                    Your AI visual strategy will appear here...
+                </div>
+                <div class="mt-4 text-sm text-gray-400" id="confidenceText">Confidence Score: --</div>
+            </div>
+
+            <!-- Final Prompt -->
+            <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                <h3 class="text-xl font-bold mb-4">Final Prompt</h3>
+                <div id="promptText" class="text-gray-200 italic leading-relaxed min-h-[180px]">
+                    Your enhanced final prompt will appear here...
+                </div>
+                <div class="flex flex-wrap gap-3 mt-6">
+                    <button id="copyPromptBtn" class="action-btn">
+                        <span class="material-symbols-outlined" style="font-size:16px;">content_copy</span> Copy Prompt
+                    </button>
+                    <button id="downloadPromptBtn" class="action-btn">
+                        <span class="material-symbols-outlined" style="font-size:16px;">download</span> Download
+                    </button>
+                    <button id="generateImageBtn" class="action-btn-primary">Generate Image</button>
+                </div>
+            </div>
+
+            <!-- Pro Brief -->
+            <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                <h3 class="text-xl font-bold mb-4">Pro Brief</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-[#161926] rounded-xl p-4">
+                        <p class="text-xs text-purple-300 mb-2">Camera</p>
+                        <p id="cameraText" class="text-sm text-gray-200">--</p>
+                    </div>
+                    <div class="bg-[#161926] rounded-xl p-4">
+                        <p class="text-xs text-purple-300 mb-2">Lighting</p>
+                        <p id="lightingText" class="text-sm text-gray-200">--</p>
+                    </div>
+                    <div class="bg-[#161926] rounded-xl p-4">
+                        <p class="text-xs text-purple-300 mb-2">Scene</p>
+                        <p id="sceneText" class="text-sm text-gray-200">--</p>
+                    </div>
+                    <div class="bg-[#161926] rounded-xl p-4">
+                        <p class="text-xs text-purple-300 mb-2">Use Case</p>
+                        <p id="useCaseText" class="text-sm text-gray-200">--</p>
+                    </div>
+                </div>
+                <div class="mt-5">
+                    <p class="text-xs text-purple-300 mb-3 uppercase tracking-widest font-bold">Color Palette</p>
+                    <div id="colorPalette" class="flex gap-2 flex-wrap"></div>
+                </div>
+                <div id="moodTags" class="flex flex-wrap gap-2 mt-5"></div>
+            </div>
+
+            <!-- Generated Image -->
+            <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                <h3 class="text-xl font-bold mb-4">Generated Image</h3>
+                <div class="relative rounded-xl overflow-hidden border border-gray-700 aspect-video bg-[#0c0e1a]">
+                    <img id="generatedImage" class="w-full h-full object-cover hidden" alt="Generated Image">
+                    <div id="imageOverlay" class="image-overlay hidden">
+                        <span id="seedText" class="text-xs text-gray-400 uppercase tracking-widest">SEED: --</span>
+                    </div>
+                    <div id="imagePlaceholder" class="absolute inset-0 flex items-center justify-center text-gray-500 text-sm text-center px-6">
+                        Generate an image from your final prompt
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-3 mt-6">
+                    <button id="copyImageBtn" class="action-btn">
+                        <span class="material-symbols-outlined" style="font-size:16px;">content_copy</span> Copy Image
+                    </button>
+                    <button id="downloadImageBtn" class="action-btn">
+                        <span class="material-symbols-outlined" style="font-size:16px;">download</span> Download High-Res
+                    </button>
+                </div>
+                <div class="mt-4 flex justify-between text-sm text-gray-400">
+                    <span id="renderStatus">Awaiting Render</span>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
