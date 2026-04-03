@@ -141,7 +141,11 @@ function fillOutputs(data) {
 async function generateVision() {
     const idea = ideaInput.value.trim();
     clearError();
-    if (!idea) { showError("Please enter your visual idea first."); return; }
+
+    if (!idea) {
+        showError("Please enter your visual idea first.");
+        return;
+    }
 
     setLoading(true);
     resetImageSection();
@@ -159,11 +163,21 @@ async function generateVision() {
         const response = await fetch("/generate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idea, style: selectedStyle, aspect: selectedAspect })
+            body: JSON.stringify({
+                idea,
+                style: selectedStyle,
+                aspect: selectedAspect
+            })
         });
+
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Generation failed.");
+
+        if (!response.ok) {
+            throw new Error(data.error || "Generation failed.");
+        }
+
         fillOutputs(data);
+
     } catch (error) {
         showError(error.message || "Something went wrong.");
         planText.textContent = "Failed to generate plan.";
@@ -180,18 +194,22 @@ refineBtn.addEventListener("click", generateVision);
 copyPromptBtn.addEventListener("click", async () => {
     const text = currentData?.final_prompt?.trim();
     if (!text) return alert("Generate a prompt first.");
+
     try {
         await navigator.clipboard.writeText(text);
         copyPromptBtn.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px;">done</span> Copied!`;
         setTimeout(() => {
             copyPromptBtn.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px;">content_copy</span> Copy Prompt`;
         }, 1500);
-    } catch { alert("Copy failed."); }
+    } catch {
+        alert("Copy failed.");
+    }
 });
 
 // ===== DOWNLOAD PROMPT =====
 downloadPromptBtn.addEventListener("click", () => {
     if (!currentData) return alert("Generate a prompt first.");
+
     const content = [
         `VisionAgent AI — Creative Brief\n================================\n\n`,
         `Idea:\n${ideaInput.value.trim()}\n\n`,
@@ -205,6 +223,7 @@ downloadPromptBtn.addEventListener("click", () => {
         `Use Case: ${currentData.use_case}\n\n`,
         `Color Palette: ${(currentData.colors || []).join(", ")}\n`
     ].join("");
+
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -216,7 +235,10 @@ downloadPromptBtn.addEventListener("click", () => {
 
 // ===== GENERATE IMAGE =====
 generateImageBtn.addEventListener("click", async () => {
-    if (!currentData?.final_prompt) { alert("Generate a prompt first."); return; }
+    if (!currentData?.final_prompt) {
+        alert("Generate a prompt first.");
+        return;
+    }
 
     generateImageBtn.disabled = true;
     generateImageBtn.textContent = "Rendering...";
@@ -230,15 +252,21 @@ generateImageBtn.addEventListener("click", async () => {
         const response = await fetch("/generate-image", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt: currentData.final_prompt, aspect: selectedAspect })
+            body: JSON.stringify({
+                prompt: currentData.final_prompt,
+                aspect: selectedAspect
+            })
         });
+
         if (!response.ok) {
             const err = await response.json().catch(() => ({}));
             throw new Error(err.error || "Image generation failed.");
         }
+
         const blob = await response.blob();
         currentImageBlob = blob;
         const imageUrl = URL.createObjectURL(blob);
+
         generatedImage.onload = () => {
             imagePlaceholder.classList.add("hidden");
             generatedImage.classList.remove("hidden");
@@ -246,7 +274,9 @@ generateImageBtn.addEventListener("click", async () => {
             renderStatus.textContent = "Rendered 100%";
             seedText.textContent = `SEED: ${Math.floor(Math.random() * 900000000 + 100000000)}`;
         };
+
         generatedImage.src = imageUrl;
+
     } catch (error) {
         imagePlaceholder.classList.remove("hidden");
         imagePlaceholder.textContent = error.message || "Image generation failed.";
@@ -262,18 +292,24 @@ generateImageBtn.addEventListener("click", async () => {
 // ===== COPY IMAGE =====
 copyImageBtn.addEventListener("click", async () => {
     if (!currentImageBlob) return alert("Generate an image first.");
+
     try {
-        await navigator.clipboard.write([new ClipboardItem({ [currentImageBlob.type]: currentImageBlob })]);
+        await navigator.clipboard.write([
+            new ClipboardItem({ [currentImageBlob.type]: currentImageBlob })
+        ]);
         copyImageBtn.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px;">done</span> Copied!`;
         setTimeout(() => {
             copyImageBtn.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px;">content_copy</span> Copy Image`;
         }, 1500);
-    } catch { alert("Copy image not supported in this browser. Use Download instead."); }
+    } catch {
+        alert("Copy image not supported in this browser. Use Download instead.");
+    }
 });
 
 // ===== DOWNLOAD IMAGE =====
 downloadImageBtn.addEventListener("click", () => {
     if (!currentImageBlob) return alert("Generate an image first.");
+
     const url = URL.createObjectURL(currentImageBlob);
     const a = document.createElement("a");
     a.href = url;
